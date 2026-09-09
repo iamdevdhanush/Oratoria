@@ -47,6 +47,12 @@ export interface Session {
   title: string;
   topic: string;
   host: string;
+  description?: string;
+  category?: string;
+  language?: string;
+  audience?: string;
+  location?: string;
+  pingMs?: number;
   participants: Participant[];
   maxParticipants: number;
   startTime: number;
@@ -70,6 +76,7 @@ export interface ChatMessage {
   authorName: string;
   content: string;
   timestamp: number;
+  timeStr?: string;
   type: 'message' | 'system' | 'reaction';
 }
 
@@ -106,8 +113,8 @@ export interface GameConfig {
 export const GAME_CONFIG: GameConfig = {
   worldWidth: 2688,
   worldHeight: 1536,
-  minZoom: 0.9,
-  maxZoom: 1.2,
+  minZoom: 0.2,
+  maxZoom: 2.0,
   playerSpeed: 200,
   cameraLerp: 0.1,
 };
@@ -154,10 +161,23 @@ export const DEFAULT_AVATAR: AvatarStyle = {
 };
 
 export const PLACEHOLDER_PARTICIPANTS: Participant[] = [
-  { id: '1', name: 'Aarav', avatar: { bodyColor: '#722f37', headColor: '#e8d5b7', accentColor: '#c9a84c' }, isOnline: true, isSpeaking: false, hasRaisedHand: false, joinedAt: Date.now() - 3600000 },
-  { id: '2', name: 'Ananya', avatar: { bodyColor: '#3d2914', headColor: '#f5e6cc', accentColor: '#c9a84c' }, isOnline: true, isSpeaking: false, hasRaisedHand: true, joinedAt: Date.now() - 1800000 },
-  { id: '3', name: 'Karan', avatar: { bodyColor: '#8b3a45', headColor: '#e8d5b7', accentColor: '#e8c56d' }, isOnline: true, isSpeaking: true, hasRaisedHand: false, joinedAt: Date.now() - 900000 },
+  { id: '1', name: 'Aarav', avatar: { bodyColor: '#2563eb', headColor: '#e8d5b7', accentColor: '#c9a84c' }, isOnline: true, isSpeaking: false, hasRaisedHand: false, joinedAt: Date.now() - 3600000 },
+  { id: '2', name: 'Ananya', avatar: { bodyColor: '#db2777', headColor: '#f5e6cc', accentColor: '#c9a84c' }, isOnline: true, isSpeaking: false, hasRaisedHand: true, joinedAt: Date.now() - 1800000 },
+  { id: '3', name: 'Karan', avatar: { bodyColor: '#059669', headColor: '#e8d5b7', accentColor: '#e8c56d' }, isOnline: true, isSpeaking: true, hasRaisedHand: false, joinedAt: Date.now() - 900000 },
   { id: '4', name: 'Meera', avatar: { bodyColor: '#5d4037', headColor: '#f5e6cc', accentColor: '#d4a843' }, isOnline: true, isSpeaking: false, hasRaisedHand: false, joinedAt: Date.now() - 600000 },
+  { id: '5', name: 'Rohan', avatar: { bodyColor: '#4338ca', headColor: '#f5e6cc', accentColor: '#c9a84c' }, isOnline: true, isSpeaking: false, hasRaisedHand: false, joinedAt: Date.now() - 500000 },
+  { id: '6', name: 'Priya', avatar: { bodyColor: '#9333ea', headColor: '#f5e6cc', accentColor: '#c9a84c' }, isOnline: true, isSpeaking: false, hasRaisedHand: false, joinedAt: Date.now() - 400000 },
+  { id: '7', name: 'Dev', avatar: { bodyColor: '#0284c7', headColor: '#f5e6cc', accentColor: '#c9a84c' }, isOnline: true, isSpeaking: false, hasRaisedHand: false, joinedAt: Date.now() - 350000 },
+  { id: '8', name: 'Aisha', avatar: { bodyColor: '#e11d48', headColor: '#f5e6cc', accentColor: '#c9a84c' }, isOnline: true, isSpeaking: false, hasRaisedHand: false, joinedAt: Date.now() - 300000 },
+  { id: '9', name: 'Vikram', avatar: { bodyColor: '#475569', headColor: '#f5e6cc', accentColor: '#c9a84c' }, isOnline: true, isSpeaking: false, hasRaisedHand: false, joinedAt: Date.now() - 250000 },
+  { id: '10', name: 'Sneha', avatar: { bodyColor: '#d97706', headColor: '#f5e6cc', accentColor: '#c9a84c' }, isOnline: true, isSpeaking: false, hasRaisedHand: false, joinedAt: Date.now() - 200000 },
+  { id: '11', name: 'Rahul', avatar: { bodyColor: '#16a34a', headColor: '#f5e6cc', accentColor: '#c9a84c' }, isOnline: true, isSpeaking: false, hasRaisedHand: false, joinedAt: Date.now() - 180000 },
+  { id: '12', name: 'Divya', avatar: { bodyColor: '#0d9488', headColor: '#f5e6cc', accentColor: '#c9a84c' }, isOnline: true, isSpeaking: false, hasRaisedHand: false, joinedAt: Date.now() - 150000 },
+  { id: '13', name: 'Kabir', avatar: { bodyColor: '#6366f1', headColor: '#f5e6cc', accentColor: '#c9a84c' }, isOnline: true, isSpeaking: false, hasRaisedHand: false, joinedAt: Date.now() - 120000 },
+  { id: '14', name: 'Riya', avatar: { bodyColor: '#ec4899', headColor: '#f5e6cc', accentColor: '#c9a84c' }, isOnline: true, isSpeaking: false, hasRaisedHand: false, joinedAt: Date.now() - 90000 },
+  { id: '15', name: 'Aditya', avatar: { bodyColor: '#3b82f6', headColor: '#f5e6cc', accentColor: '#c9a84c' }, isOnline: true, isSpeaking: false, hasRaisedHand: false, joinedAt: Date.now() - 80000 },
+  { id: '16', name: 'Tanvi', avatar: { bodyColor: '#8b5cf6', headColor: '#f5e6cc', accentColor: '#c9a84c' }, isOnline: true, isSpeaking: false, hasRaisedHand: false, joinedAt: Date.now() - 70000 },
+  { id: '17', name: 'Arjun', avatar: { bodyColor: '#10b981', headColor: '#f5e6cc', accentColor: '#c9a84c' }, isOnline: true, isSpeaking: false, hasRaisedHand: false, joinedAt: Date.now() - 60000 },
 ];
 
 export const INITIAL_SESSION: Session = {
@@ -165,9 +185,15 @@ export const INITIAL_SESSION: Session = {
   title: 'Live Session',
   topic: 'The Role of AI in Education',
   host: 'Prof. Anderson',
+  description: "Let's discuss how AI is shaping education and what opportunities it creates for future learners.",
+  category: 'Education',
+  language: 'English',
+  audience: 'Open for All',
+  location: 'Main Hall',
+  pingMs: 32,
   participants: PLACEHOLDER_PARTICIPANTS,
   maxParticipants: 50,
-  startTime: Date.now() - 1200000,
-  elapsedTime: 1200000,
+  startTime: Date.now() - 1458000,
+  elapsedTime: 1458000, // 00:24:18
   isLive: true,
 };

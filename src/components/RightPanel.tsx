@@ -1,286 +1,297 @@
 'use client';
 
-import { motion, useState } from 'framer-motion';
-import { GlassCard } from './GlassCard';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useSessionStore } from '@/store/sessionStore';
 import { useUIStore } from '@/store/uiStore';
 
 export function RightPanel() {
-  const { rightPanelOpen, setRightPanelOpen, activeTab, setActiveTab } = useUIStore();
-  const { session, raiseHand, lowerHand, toggleHand } = useSessionStore();
-  const { localParticipant } = useSessionStore();
+  const { rightPanelOpen, setRightPanelOpen, setPeoplePanelOpen } = useUIStore();
+  const { session, localParticipant, toggleHand, messages, addMessage } = useSessionStore();
+  const [activeTab, setActiveTab] = useState<'session' | 'people' | 'chat'>('session');
+  const [chatInput, setChatInput] = useState('');
+  const [chatMinimized, setChatMinimized] = useState(false);
 
   if (!rightPanelOpen) return null;
 
   const participantCount = session.participants.length + 1;
   const elapsedMinutes = Math.floor(session.elapsedTime / 60000);
   const elapsedSeconds = Math.floor((session.elapsedTime % 60000) / 1000);
-  const elapsedString = `${elapsedMinutes}:${elapsedSeconds.toString().padStart(2, '0')}`;
+  const elapsedString = `${elapsedMinutes.toString().padStart(2, '0')}:${elapsedSeconds.toString().padStart(2, '0')}`;
 
-  const tabs = [
-    { id: 'session', label: 'Session', icon: '🎙️' },
-    { id: 'people', label: 'People', icon: '👥' },
-    { id: 'chat', label: 'Chat', icon: '💬' },
-  ] as const;
-
-  return (
-    <motion.aside
-      initial={{ x: 320, opacity: 0 }}
-      animate={{ x: 0, opacity: 1 }}
-      exit={{ x: 320, opacity: 0 }}
-      transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-      className="fixed right-0 top-0 h-full w-80 md:w-96 z-40 flex flex-col"
-      style={{ transformOrigin: 'right center' }}
-    >
-      <div className="absolute inset-0 bg-black/30" onClick={() => setRightPanelOpen(false)} aria-hidden="true" />
-
-      <div className="relative flex flex-col h-full bg-auditorium-bg/70 backdrop-blur-glass border-l border-auditorium-gold/20">
-        <div className="flex items-center justify-between p-4 border-b border-auditorium-gold/20">
-          <h2 className="font-serif text-xl text-auditorium-cream font-medium">Live Session</h2>
-          <button
-            onClick={() => setRightPanelOpen(false)}
-            className="p-2 rounded-lg text-auditorium-cream/60 hover:text-auditorium-cream hover:bg-auditorium-gold/10 transition-colors"
-            aria-label="Close panel"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
-          </button>
-        </div>
-
-        <div className="flex border-b border-auditorium-gold/10">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex-1 flex items-center justify-center gap-2 px-3 py-3 text-sm font-medium transition-colors relative ${
-                activeTab === tab.id
-                  ? 'text-auditorium-gold'
-                  : 'text-auditorium-cream/60 hover:text-auditorium-cream/80'
-              }`}
-            >
-              <span>{tab.icon}</span>
-              <span className="hidden sm:inline">{tab.label}</span>
-            </button>
-          ))}
-        </div>
-
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          {activeTab === 'session' && (
-            <SessionTab session={session} elapsedString={elapsedString} participantCount={participantCount} localParticipant={localParticipant} onRaiseHand={toggleHand} />
-          )}
-          {activeTab === 'people' && <PeopleTab />}
-          {activeTab === 'chat' && <ChatTab />}
-        </div>
-      </div>
-    </motion.aside>
-  );
-}
-
-function SessionTab({
-  session,
-  elapsedString,
-  participantCount,
-  localParticipant,
-  onRaiseHand,
-}: {
-  session: ReturnType<typeof useSessionStore>['session'];
-  elapsedString: string;
-  participantCount: number;
-  localParticipant: ReturnType<typeof useSessionStore>['localParticipant'];
-  onRaiseHand: () => void;
-}) {
-  return (
-    <div className="space-y-4">
-      <GlassCard className="border-auditorium-gold/30 shadow-gold-glow" padding="md">
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-auditorium-gold uppercase tracking-wider">Open Talk</span>
-            <span className="w-px h-4 bg-auditorium-gold/30" />
-            <span className="text-auditorium-cream/60 text-sm">Live</span>
-          </div>
-          <h3 className="font-serif text-lg text-auditorium-cream leading-snug">"{session.topic}"</h3>
-          <p className="text-auditorium-cream/50 text-sm">Hosted by {session.host}</p>
-        </div>
-      </GlassCard>
-
-      <div className="grid grid-cols-2 gap-3">
-        <GlassCard padding="sm" className="text-center">
-          <div className="text-2xl font-serif text-auditorium-gold font-bold">{participantCount}</div>
-          <div className="text-xs text-auditorium-cream/60 uppercase tracking-wider">/{session.maxParticipants}</div>
-          <div className="text-xs text-auditorium-cream/50">Participants</div>
-        </GlassCard>
-        <GlassCard padding="sm" className="text-center">
-          <div className="text-2xl font-serif text-auditorium-gold font-bold tabular-nums">{elapsedString}</div>
-          <div className="text-xs text-auditorium-cream/50">Elapsed</div>
-        </GlassCard>
-      </div>
-
-      <GlassCard padding="md" className="space-y-3">
-        <div className="flex items-center justify-between">
-          <span className="text-sm font-medium text-auditorium-cream">Your Status</span>
-          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-            localParticipant.hasRaisedHand
-              ? 'bg-auditorium-gold/20 text-auditorium-gold'
-              : 'bg-auditorium-burgundy/30 text-auditorium-cream/60'
-          }`}>
-            {localParticipant.hasRaisedHand ? 'Hand Raised' : 'Listening'}
-          </span>
-        </div>
-        <button
-          onClick={onRaiseHand}
-          className={`w-full py-3 rounded-xl font-medium text-sm transition-all ${
-            localParticipant.hasRaisedHand
-              ? 'bg-auditorium-burgundy text-auditorium-cream hover:bg-auditorium-burgundyLight'
-              : 'bg-gradient-to-r from-auditorium-gold to-auditorium-amber text-auditorium-bg font-semibold hover:shadow-gold-glow-lg'
-          }`}
-        >
-          {localParticipant.hasRaisedHand ? 'Lower Hand' : 'Raise Hand'}
-        </button>
-      </GlassCard>
-
-      <GlassCard padding="md">
-        <div className="flex items-center justify-between mb-3">
-          <span className="text-sm font-medium text-auditorium-cream">Quick Actions</span>
-        </div>
-        <div className="grid grid-cols-2 gap-2">
-          <QuickActionButton icon="🎤" label="Request to Speak" />
-          <QuickActionButton icon="📝" label="Take Notes" />
-          <QuickActionButton icon="❓" label="Ask Question" />
-          <QuickActionButton icon="👏" label="Applaud" />
-        </div>
-      </GlassCard>
-    </div>
-  );
-}
-
-function QuickActionButton({ icon, label }: { icon: string; label: string }) {
-  return (
-    <button className="flex flex-col items-center gap-2 p-3 rounded-xl bg-auditorium-bg/50 border border-auditorium-gold/10 hover:border-auditorium-gold/30 hover:bg-auditorium-gold/5 transition-all text-auditorium-cream/80">
-      <span className="text-xl">{icon}</span>
-      <span className="text-xs font-medium">{label}</span>
-    </button>
-  );
-}
-
-function PeopleTab() {
-  const { peoplePanelOpen, setPeoplePanelOpen } = useUIStore();
-  const { participants } = useSessionStore();
-
-  return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <h4 className="font-medium text-auditorium-cream">Participants</h4>
-        <button
-          onClick={() => setPeoplePanelOpen(true)}
-          className="text-xs text-auditorium-gold hover:text-auditorium-goldLight transition-colors"
-        >
-          View all →
-        </button>
-      </div>
-      <div className="space-y-2 max-h-64 overflow-y-auto">
-        {participants.slice(0, 8).map((p) => (
-          <ParticipantRow key={p.id} participant={p} isLocal={false} />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function ParticipantRow({ participant, isLocal }: { participant: ReturnType<typeof useSessionStore>['session']['participants'][0]; isLocal: boolean }) {
-  return (
-    <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-auditorium-gold/5 transition-colors">
-      <div className="relative">
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-auditorium-burgundy to-auditorium-walnut flex items-center justify-center text-xs font-serif text-auditorium-cream">
-          {participant.name[0]}
-        </div>
-        <span className={`absolute bottom-0 right-0 w-2 h-2 rounded-full border-2 border-auditorium-bg ${participant.isOnline ? 'bg-green-500' : 'bg-gray-500'}`} />
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-auditorium-cream truncate">{participant.name} {isLocal && '(You)'}</p>
-        <p className="text-xs text-auditorium-cream/50">{participant.isSpeaking ? '🎤 Speaking' : 'Listening'}</p>
-      </div>
-      {participant.hasRaisedHand && (
-        <span className="text-auditorium-gold text-lg">✋</span>
-      )}
-    </div>
-  );
-}
-
-function ChatTab() {
-  const { chatOpen, setChatOpen } = useUIStore();
-  const { messages, addMessage } = useSessionStore();
-  const [input, setInput] = useState('');
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSendChat = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim()) return;
-    addMessage({ authorId: 'local-player', authorName: 'You', content: input.trim(), type: 'message' });
-    setInput('');
+    if (!chatInput.trim()) return;
+    addMessage({
+      authorId: 'local-player',
+      authorName: 'You',
+      content: chatInput.trim(),
+      type: 'message',
+    });
+    setChatInput('');
   };
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-y-auto space-y-3 pb-4">
-        {messages.slice(-20).map((msg) => (
-          <ChatMessage key={msg.id} message={msg} isOwn={msg.authorId === 'local-player'} />
-        ))}
-      </div>
-      <form onSubmit={handleSubmit} className="border-t border-auditorium-gold/10 p-3">
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Type a message..."
-            className="flex-1 bg-auditorium-bg/50 border border-auditorium-gold/20 rounded-xl px-4 py-2 text-auditorium-cream placeholder-auditorium-cream/40 focus:outline-none focus:border-auditorium-gold/50 transition-colors"
-          />
-          <button
-            type="submit"
-            disabled={!input.trim()}
-            className="px-4 py-2 bg-auditorium-gold/20 text-auditorium-gold rounded-xl font-medium hover:bg-auditorium-gold/30 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            Send
-          </button>
+    <aside className="fixed right-6 top-16 bottom-4 z-40 w-[350px] flex flex-col gap-3 pointer-events-none select-none">
+      {/* CARD 1: LIVE SESSION */}
+      <motion.div
+        initial={{ opacity: 0, x: 50 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ type: 'spring', damping: 25, stiffness: 220 }}
+        className="pointer-events-auto rounded-2xl bg-black/70 backdrop-blur-md border border-white/10 p-4 shadow-glass text-auditorium-cream flex flex-col gap-3.5"
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <h2 className="text-base font-semibold text-white tracking-tight">Live Session</h2>
+          <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-950/60 border border-emerald-500/30 text-[11px] font-medium text-emerald-400">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span>Live</span>
+          </div>
         </div>
-      </form>
-    </div>
-  );
-}
 
-function ChatMessage({ message, isOwn }: { message: ReturnType<typeof useSessionStore>['messages'][0]; isOwn: boolean }) {
-  const time = new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        {/* Open Talk Hero Box */}
+        <div className="p-3 rounded-xl bg-gradient-to-r from-[#2c1a16]/80 to-[#1f1614]/80 border border-auditorium-gold/20 flex flex-col gap-2.5">
+          <div className="flex items-start gap-3">
+            {/* Temple Icon Badge */}
+            <div className="w-10 h-10 rounded-xl bg-[#4a1c1d] border border-auditorium-gold/30 flex items-center justify-center text-auditorium-gold shrink-0 shadow-sm">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2L2 7v2h20V7L12 2zM4 11v8h2v-8H4zm5 0v8h2v-8H9zm5 0v8h2v-8h-2zm5 0v8h2v-8h-2zM2 20v2h20v-2H2z" />
+              </svg>
+            </div>
 
-  if (message.type === 'system') {
-    return (
-      <div className="text-center text-xs text-auditorium-cream/40 py-2">
-        {message.content}
-      </div>
-    );
-  }
+            <div className="min-w-0 flex-1">
+              <span className="text-[10px] font-semibold text-auditorium-gold tracking-widest uppercase block leading-tight">
+                OPEN TALK
+              </span>
+              <h3 className="text-sm font-bold text-white leading-snug mt-0.5 truncate">
+                "{session.topic}"
+              </h3>
+              <p className="text-[11px] text-auditorium-cream/50 mt-0.5">
+                Hosted by {session.host}
+              </p>
+            </div>
+          </div>
 
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}
-    >
-      <div className={`max-w-[70%] ${isOwn ? 'text-right' : 'text-left'}`}>
-        {!isOwn && (
-          <p className="text-xs text-auditorium-gold/80 mb-1">{message.authorName}</p>
-        )}
-        <div
-          className={`inline-block px-4 py-2 rounded-2xl text-sm ${
-            isOwn
-              ? 'bg-auditorium-gold/20 text-auditorium-bg rounded-tr-none'
-              : 'bg-auditorium-walnut/50 text-auditorium-cream rounded-tl-none'
+          <div className="flex items-center justify-between text-[11px] text-auditorium-cream/60 pt-1 border-t border-white/5 font-mono">
+            <span className="flex items-center gap-1.5">
+              👥 {participantCount} / {session.maxParticipants} participants
+            </span>
+            <span className="flex items-center gap-1.5">
+              ⏱ 00:{elapsedString}
+            </span>
+          </div>
+        </div>
+
+        {/* Solid Gold Raise Hand CTA */}
+        <button
+          onClick={toggleHand}
+          className={`w-full py-2.5 px-4 rounded-xl font-semibold text-xs flex items-center justify-center gap-2 transition-all shadow-sm ${
+            localParticipant.hasRaisedHand
+              ? 'bg-[#722f37] text-white border border-auditorium-gold/40 hover:bg-[#8b3a45]'
+              : 'bg-gradient-to-r from-[#eec068] to-[#e6b152] text-[#1a1612] hover:brightness-105 active:scale-[0.99]'
           }`}
         >
-          {message.content}
+          <span className="text-sm">✋</span>
+          <span>{localParticipant.hasRaisedHand ? 'Lower Hand' : 'Raise Hand'}</span>
+        </button>
+
+        {/* Tab Segment Switcher */}
+        <div className="grid grid-cols-3 gap-1.5 p-1 rounded-xl bg-black/40 border border-white/5">
+          <button
+            onClick={() => setActiveTab('session')}
+            className={`flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
+              activeTab === 'session'
+                ? 'bg-black/70 text-auditorium-gold border border-auditorium-gold/30 shadow-sm'
+                : 'text-auditorium-cream/60 hover:text-auditorium-cream'
+            }`}
+          >
+            <span>🏛</span>
+            <span>Session</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('people')}
+            className={`flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
+              activeTab === 'people'
+                ? 'bg-black/70 text-auditorium-gold border border-auditorium-gold/30 shadow-sm'
+                : 'text-auditorium-cream/60 hover:text-auditorium-cream'
+            }`}
+          >
+            <span>👥</span>
+            <span>People</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('chat')}
+            className={`flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
+              activeTab === 'chat'
+                ? 'bg-black/70 text-auditorium-gold border border-auditorium-gold/30 shadow-sm'
+                : 'text-auditorium-cream/60 hover:text-auditorium-cream'
+            }`}
+          >
+            <span>💬</span>
+            <span>Chat</span>
+          </button>
         </div>
-        <p className={`text-xs mt-1 ${isOwn ? 'text-auditorium-cream/40' : 'text-auditorium-cream/30'}`}>{time}</p>
-      </div>
-    </motion.div>
+
+        {/* Tab Body */}
+        {activeTab === 'session' && (
+          <div className="flex flex-col gap-2.5 text-xs">
+            <div>
+              <h4 className="font-medium text-white text-xs mb-1">Session Details</h4>
+              <p className="text-[11px] text-auditorium-cream/60 leading-relaxed">
+                {session.description || "Let's discuss how AI is shaping education and what opportunities it creates for future learners."}
+              </p>
+            </div>
+
+            {/* 3-column Metadata Grid */}
+            <div className="grid grid-cols-3 gap-2 pt-2 border-t border-white/5 text-center">
+              <div className="flex flex-col">
+                <span className="text-[10px] text-auditorium-cream/40">Category</span>
+                <span className="text-[11px] font-medium text-white mt-0.5">
+                  {session.category || 'Education'}
+                </span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[10px] text-auditorium-cream/40">Language</span>
+                <span className="text-[11px] font-medium text-white mt-0.5">
+                  {session.language || 'English'}
+                </span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[10px] text-auditorium-cream/40">Audience</span>
+                <span className="text-[11px] font-medium text-white mt-0.5">
+                  {session.audience || 'Open for All'}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'people' && (
+          <div className="flex flex-col gap-2 max-h-44 overflow-y-auto pr-1">
+            <div className="flex items-center justify-between pb-1 border-b border-white/5">
+              <span className="text-xs text-auditorium-cream/60">Participants ({participantCount})</span>
+              <button
+                onClick={() => setPeoplePanelOpen(true)}
+                className="text-[11px] text-auditorium-gold hover:underline"
+              >
+                View all →
+              </button>
+            </div>
+            {session.participants.map((p) => (
+              <div key={p.id} className="flex items-center justify-between py-1 text-xs">
+                <div className="flex items-center gap-2">
+                  <div
+                    className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] text-white font-serif"
+                    style={{ backgroundColor: p.avatar.bodyColor }}
+                  >
+                    {p.name[0]}
+                  </div>
+                  <span className="text-auditorium-cream font-medium">{p.name}</span>
+                </div>
+                {p.hasRaisedHand && <span className="text-xs">✋</span>}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {activeTab === 'chat' && (
+          <div className="text-xs text-auditorium-cream/60 text-center py-2">
+            See the live chat window below ↓
+          </div>
+        )}
+      </motion.div>
+
+      {/* CARD 2: LIVE CHAT */}
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ type: 'spring', damping: 25, stiffness: 220, delay: 0.1 }}
+        className="pointer-events-auto rounded-2xl bg-black/70 backdrop-blur-md border border-white/10 shadow-glass flex flex-col flex-1 max-h-72 min-h-[200px] overflow-hidden"
+      >
+        {/* Chat Header */}
+        <div className="flex items-center justify-between px-4 py-2.5 border-b border-white/10">
+          <div className="flex items-center gap-2">
+            <span className="text-sm">💬</span>
+            <h3 className="text-xs font-semibold text-white tracking-wide">Live Chat</h3>
+          </div>
+          <div className="flex items-center gap-2 text-auditorium-cream/50 text-xs">
+            <button
+              onClick={() => setChatMinimized(!chatMinimized)}
+              className="hover:text-white p-0.5"
+              aria-label="Minimize chat"
+            >
+              —
+            </button>
+            <button
+              onClick={() => setRightPanelOpen(false)}
+              className="hover:text-white p-0.5"
+              aria-label="Close chat"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+
+        {!chatMinimized && (
+          <>
+            {/* Chat Messages */}
+            <div className="flex-1 overflow-y-auto p-3 space-y-2.5">
+              {messages.map((msg) => {
+                const isLocal = msg.authorId === 'local-player';
+                const time = new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                // Avatar colors for mock users matching reference
+                const avatarBg =
+                  msg.authorName === 'Aarav'
+                    ? 'from-blue-600 to-indigo-800'
+                    : msg.authorName === 'Ananya'
+                    ? 'from-rose-500 to-purple-700'
+                    : 'from-emerald-600 to-teal-800';
+
+                return (
+                  <div key={msg.id} className="flex items-start gap-2.5">
+                    <div className={`w-7 h-7 rounded-full bg-gradient-to-br ${avatarBg} flex items-center justify-center text-[10px] font-bold text-white shrink-0 border border-white/10 shadow-sm mt-0.5`}>
+                      {msg.authorName[0]}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-semibold text-white truncate">{msg.authorName}</span>
+                        <span className="text-[10px] text-auditorium-cream/40 font-mono">{time}</span>
+                      </div>
+                      <p className="text-xs text-auditorium-cream/90 mt-0.5 break-words">
+                        {msg.content}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Chat Input */}
+            <form onSubmit={handleSendChat} className="p-2.5 border-t border-white/10 bg-black/30">
+              <div className="relative flex items-center">
+                <input
+                  type="text"
+                  value={chatInput}
+                  onChange={(e) => setChatInput(e.target.value)}
+                  placeholder="Type a message..."
+                  className="w-full bg-black/50 border border-white/15 rounded-xl px-3.5 py-2 pr-9 text-xs text-white placeholder-auditorium-cream/40 focus:outline-none focus:border-auditorium-gold/50 transition-colors"
+                />
+                <button
+                  type="submit"
+                  disabled={!chatInput.trim()}
+                  className="absolute right-2 p-1.5 text-auditorium-gold hover:text-white disabled:opacity-30 transition-colors"
+                  aria-label="Send message"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+                  </svg>
+                </button>
+              </div>
+            </form>
+          </>
+        )}
+      </motion.div>
+    </aside>
   );
 }

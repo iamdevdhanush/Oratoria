@@ -14,9 +14,16 @@ const initialPosition: Vector2 = {
   y: GAME_CONFIG.worldHeight / 2,
 };
 
+const getInitialZoom = (): number => {
+  if (typeof window !== 'undefined' && window.innerHeight > 0) {
+    return Math.max(GAME_CONFIG.minZoom, Math.min(GAME_CONFIG.maxZoom, window.innerHeight / GAME_CONFIG.worldHeight));
+  }
+  return 0.6;
+};
+
 export const useCameraStore = create<CameraStore>((set, get) => ({
   position: initialPosition,
-  zoom: 1,
+  zoom: getInitialZoom(),
   targetPosition: initialPosition,
   lerpFactor: GAME_CONFIG.cameraLerp,
   setTargetPosition: (targetPosition) => set({ targetPosition }),

@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import Phaser from 'phaser';
+import { useEffect, useRef } from 'react';
+import * as Phaser from 'phaser';
 import { createGameConfig, AuditoriumScene } from './AuditoriumScene';
 import { useCameraStore } from '@/store/cameraStore';
 
@@ -12,9 +12,6 @@ interface GameCanvasProps {
 export function GameCanvas({ onSceneReady }: GameCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const gameRef = useRef<Phaser.Game | null>(null);
-  const sceneRef = useRef<AuditoriumScene | null>(null);
-  const [isReady, setIsReady] = useState(false);
-  const { zoom, setZoom, zoomIn, zoomOut } = useCameraStore();
 
   useEffect(() => {
     if (!canvasRef.current || gameRef.current) return;
@@ -24,35 +21,36 @@ export function GameCanvas({ onSceneReady }: GameCanvasProps) {
     gameRef.current = game;
 
     game.events.once('ready', () => {
-      sceneRef.current = game.scene.getScene('AuditoriumScene') as AuditoriumScene;
-      setIsReady(true);
       onSceneReady?.();
     });
 
     const handleWheel = (e: WheelEvent) => {
       if (e.ctrlKey || e.metaKey) {
         e.preventDefault();
-        if (e.deltaY < 0) zoomIn();
-        else zoomOut();
+        if (e.deltaY < 0) {
+          useCameraStore.getState().zoomIn();
+        } else {
+          useCameraStore.getState().zoomOut();
+        }
+      }
+    };
+
+    const handleResize = () => {
+      if (gameRef.current) {
+        gameRef.current.scale.resize(window.innerWidth, window.innerHeight);
       }
     };
 
     window.addEventListener('wheel', handleWheel, { passive: false });
+    window.addEventListener('resize', handleResize);
 
     return () => {
       window.removeEventListener('wheel', handleWheel);
+      window.removeEventListener('resize', handleResize);
       game.destroy(true);
       gameRef.current = null;
-      sceneRef.current = null;
-      setIsReady(false);
     };
-  }, [onSceneReady, zoomIn, zoomOut]);
-
-  useEffect(() => {
-    if (gameRef.current?.canvas) {
-      gameRef.current.scale.resize(window.innerWidth, window.innerHeight);
-    }
-  }, []);
+  }, [onSceneReady]);
 
   return (
     <canvas

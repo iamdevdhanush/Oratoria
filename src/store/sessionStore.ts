@@ -25,9 +25,9 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
     joinedAt: Date.now(),
   },
   messages: [
-    { id: '1', authorId: 'system', authorName: 'System', content: 'Welcome to Oratoria Auditorium', timestamp: Date.now() - 1200000, type: 'system' },
-    { id: '2', authorId: '3', authorName: 'Karan', content: 'Excited for this discussion on AI in education!', timestamp: Date.now() - 900000, type: 'message' },
-    { id: '3', authorId: '2', authorName: 'Ananya', content: 'Same here. This is such a relevant topic.', timestamp: Date.now() - 600000, type: 'message' },
+    { id: '1', authorId: '1', authorName: 'Aarav', content: 'Excited for this session!', timestamp: Date.now() - 120000, timeStr: '10:24 AM', type: 'message' },
+    { id: '2', authorId: '2', authorName: 'Ananya', content: 'Such a relevant topic.', timestamp: Date.now() - 60000, timeStr: '10:25 AM', type: 'message' },
+    { id: '3', authorId: '3', authorName: 'Karan', content: 'Looking forward to the discussion!', timestamp: Date.now() - 10000, timeStr: '10:26 AM', type: 'message' },
   ],
   raiseHand: () =>
     set((state) => ({

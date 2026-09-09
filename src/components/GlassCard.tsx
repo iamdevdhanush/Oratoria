@@ -22,7 +22,7 @@ export const GlassCard = forwardRef<HTMLDivElement, GlassCardProps>(
     return (
       <motion.div
         ref={ref}
-        className={`${paddingClasses[padding]} bg-auditorium-bg/60 backdrop-blur-glass border border-auditorium-gold/20 rounded-2xl shadow-glass ${hover ? 'hover:shadow-glow-hover transition-shadow duration-300' : ''} ${className}`}
+        className={`${paddingClasses[padding]} bg-auditorium-bg/60 backdrop-blur-glass border border-auditorium-gold/20 rounded-2xl shadow-glass ${hover ? 'hover:shadow-gold-glow hover:border-auditorium-gold/40 transition-all duration-300' : ''} ${className}`}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}

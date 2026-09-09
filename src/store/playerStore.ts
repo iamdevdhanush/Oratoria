@@ -12,7 +12,7 @@ interface PlayerState {
 
 const initialPosition: Vector2 = {
   x: GAME_CONFIG.worldWidth / 2,
-  y: GAME_CONFIG.worldHeight - 200,
+  y: 980,
 };
 
 export const usePlayerStore = create<PlayerState>((set) => ({
