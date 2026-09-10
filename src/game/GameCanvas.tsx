@@ -37,7 +37,16 @@ export function GameCanvas({ onSceneReady }: GameCanvasProps) {
 
     const handleResize = () => {
       if (gameRef.current) {
-        gameRef.current.scale.resize(window.innerWidth, window.innerHeight);
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+        gameRef.current.scale.resize(w, h);
+        const scene = gameRef.current.scene.getScene('AuditoriumScene');
+        if (scene && (scene as any).cameras?.main) {
+          const newZoom = Math.max(0.2, Math.min(2.0, h / 1536));
+          useCameraStore.getState().setZoom(newZoom);
+          (scene as any).cameras.main.setZoom(newZoom);
+          (scene as any).cameras.main.centerOn(1344, 768);
+        }
       }
     };
 

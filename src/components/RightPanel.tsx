@@ -238,27 +238,46 @@ export function RightPanel() {
             <div className="flex-1 overflow-y-auto p-3 space-y-2.5">
               {messages.map((msg) => {
                 const isLocal = msg.authorId === 'local-player';
-                const time = new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-                // Avatar colors for mock users matching reference
-                const avatarBg =
-                  msg.authorName === 'Aarav'
-                    ? 'from-blue-600 to-indigo-800'
-                    : msg.authorName === 'Ananya'
-                    ? 'from-rose-500 to-purple-700'
-                    : 'from-emerald-600 to-teal-800';
+                const time = msg.timeStr || new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
                 return (
                   <div key={msg.id} className="flex items-start gap-2.5">
-                    <div className={`w-7 h-7 rounded-full bg-gradient-to-br ${avatarBg} flex items-center justify-center text-[10px] font-bold text-white shrink-0 border border-white/10 shadow-sm mt-0.5`}>
-                      {msg.authorName[0]}
+                    {/* User Avatar */}
+                    <div className="w-7 h-7 rounded-full overflow-hidden shrink-0 border border-white/10 shadow-sm mt-0.5 bg-[#251d18] flex items-center justify-center">
+                      {msg.authorName === 'Aarav' ? (
+                        <svg viewBox="0 0 32 32" className="w-full h-full">
+                          <circle cx="16" cy="16" r="16" fill="#3b82f6" />
+                          <circle cx="16" cy="12" r="6" fill="#fed7aa" />
+                          <path d="M10 11c0-4 3-6 6-6s6 2 6 6c-2-1-4-1-6-1s-4 0-6 1z" fill="#451a03" />
+                          <path d="M9 28c1-6 4-8 7-8s6 2 7 8" fill="#1e3a8a" />
+                        </svg>
+                      ) : msg.authorName === 'Ananya' ? (
+                        <svg viewBox="0 0 32 32" className="w-full h-full">
+                          <circle cx="16" cy="16" r="16" fill="#ec4899" />
+                          <circle cx="16" cy="12" r="6" fill="#fde68a" />
+                          <path d="M9 13c0-5 3-7 7-7s7 2 7 7c-2-2-4-2-7-2s-5 0-7 2z" fill="#701a75" />
+                          <path d="M8 28c1-6 4-8 8-8s7 2 8 8" fill="#831843" />
+                        </svg>
+                      ) : msg.authorName === 'Karan' ? (
+                        <svg viewBox="0 0 32 32" className="w-full h-full">
+                          <circle cx="16" cy="16" r="16" fill="#0d9488" />
+                          <circle cx="16" cy="12" r="6" fill="#fed7aa" />
+                          <path d="M10 11c0-4 3-6 6-6s6 2 6 6c-2-1-4-1-6-1s-4 0-6 1z" fill="#1c1917" />
+                          <path d="M9 28c1-6 4-8 7-8s6 2 7 8" fill="#134e4a" />
+                        </svg>
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-amber-600 to-amber-800 flex items-center justify-center text-[10px] font-bold text-white">
+                          {msg.authorName[0]}
+                        </div>
+                      )}
                     </div>
+
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-semibold text-white truncate">{msg.authorName}</span>
-                        <span className="text-[10px] text-auditorium-cream/40 font-mono">{time}</span>
+                        <span className="text-[10px] text-auditorium-cream/50 font-sans">{time}</span>
                       </div>
-                      <p className="text-xs text-auditorium-cream/90 mt-0.5 break-words">
+                      <p className="text-xs text-auditorium-cream/90 mt-0.5 break-words leading-relaxed">
                         {msg.content}
                       </p>
                     </div>

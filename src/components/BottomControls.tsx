@@ -39,9 +39,13 @@ export function BottomControls() {
         initial={{ y: 50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ type: 'spring', damping: 25, stiffness: 220, delay: 0.1 }}
-        className="flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-black/75 backdrop-blur-md border border-white/10 shadow-glass"
+        className="flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-black/80 backdrop-blur-md border border-white/10 shadow-glass"
       >
-        <div className="text-auditorium-gold text-lg">📍</div>
+        <div className="w-6 h-6 flex items-center justify-center text-auditorium-gold">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="#c9a84c">
+            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
+          </svg>
+        </div>
         <div className="flex flex-col">
           <span className="text-xs font-semibold text-white leading-tight">
             {session.location || 'Main Hall'}

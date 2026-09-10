@@ -77,14 +77,14 @@ export function LeftSidebar() {
         {/* Brand Header */}
         <div className="flex flex-col items-center gap-1.5 pt-2">
           {/* Ornate Gold Monogram Crest */}
-          <div className="text-auditorium-gold">
-            <svg width="42" height="46" viewBox="0 0 54 58" fill="none">
-              <path d="M27 4L33 14H21L27 4Z" fill="#c9a84c" />
-              <path d="M12 18H42M14 22V44M27 22V44M40 22V44M10 46H44M8 50H46" stroke="#c9a84c" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M18 30H36M18 36H36" stroke="#e8c56d" strokeWidth="1.5" strokeLinecap="round" />
+          <div className="text-auditorium-gold drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]">
+            <svg width="44" height="48" viewBox="0 0 54 58" fill="none">
+              <path d="M27 4L33 14H21L27 4Z" fill="#e8c56d" />
+              <path d="M12 18H42M14 22V44M27 22V44M40 22V44M10 46H44M8 50H46" stroke="#e8c56d" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M18 30H36M18 36H36" stroke="#f5e6cc" strokeWidth="1.5" strokeLinecap="round" />
             </svg>
           </div>
-          <h1 className="font-serif text-lg tracking-wide text-auditorium-gold font-normal">
+          <h1 className="font-serif text-xl tracking-wide text-[#e8c56d] font-normal drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
             Oratoria
           </h1>
         </div>
@@ -100,11 +100,11 @@ export function LeftSidebar() {
                 onClick={() => handleNavClick(item.id, item.label)}
                 className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
                   isActive
-                    ? 'bg-black/60 backdrop-blur-md text-auditorium-cream border border-auditorium-gold/30 shadow-glass'
-                    : 'text-auditorium-cream/70 hover:text-auditorium-cream hover:bg-black/30'
+                    ? 'bg-black/75 backdrop-blur-md text-white border border-white/15 shadow-glass'
+                    : 'text-auditorium-cream/80 hover:text-white hover:bg-black/40 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]'
                 }`}
               >
-                <div className={isActive ? 'text-auditorium-cream' : 'text-auditorium-cream/70'}>
+                <div className={isActive ? 'text-white' : 'text-auditorium-cream/80'}>
                   {item.icon(isActive)}
                 </div>
                 <span>{item.label}</span>
@@ -116,21 +116,22 @@ export function LeftSidebar() {
 
       {/* Bottom User Pill Card */}
       <div className="pointer-events-auto">
-        <div className="flex items-center gap-3 p-2.5 rounded-2xl bg-black/65 backdrop-blur-md border border-white/10 shadow-glass w-40">
+        <div className="flex items-center gap-3 p-2.5 rounded-2xl bg-black/80 backdrop-blur-md border border-white/10 shadow-glass w-40">
           <div className="relative">
             {/* User Avatar Circle */}
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-600 via-purple-600 to-amber-700 flex items-center justify-center text-xs font-serif text-white border border-auditorium-gold/40 shadow-sm overflow-hidden">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                <circle cx="12" cy="8" r="4" fill="#f5e6cc" />
-                <path d="M6 21v-2a6 6 0 0 1 12 0v2" fill="#722f37" />
-                <path d="M8 7c0-2 2-3 4-3s4 1 4 3c0 1-1 2-2 2h-4c-1 0-2-1-2-2z" fill="#3d2914" />
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#4f46e5] to-[#7c3aed] flex items-center justify-center border border-white/20 shadow-sm overflow-hidden">
+              <svg viewBox="0 0 32 32" className="w-full h-full">
+                <circle cx="16" cy="16" r="16" fill="#7c3aed" />
+                <circle cx="16" cy="12" r="6" fill="#fed7aa" />
+                <path d="M10 11c0-4 3-6 6-6s6 2 6 6c-2-1-4-1-6-1s-4 0-6 1z" fill="#451a03" />
+                <path d="M9 28c1-6 4-8 7-8s6 2 7 8" fill="#581c87" />
               </svg>
             </div>
             <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-black" />
           </div>
           <div className="min-w-0">
-            <p className="text-xs font-semibold text-auditorium-cream leading-tight">You</p>
-            <p className="text-[11px] text-auditorium-cream/50 leading-tight">Online</p>
+            <p className="text-xs font-semibold text-white leading-tight">You</p>
+            <p className="text-[11px] text-emerald-400/80 leading-tight">Online</p>
           </div>
         </div>
       </div>

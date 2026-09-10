@@ -1,0 +1,1 @@
+self.__REACT_LOADABLE_MANIFEST="{\"app\\\\page.tsx -> @/game/GameCanvas\":{\"id\":\"app\\\\page.tsx -> @/game/GameCanvas\",\"files\":[\"static/chunks/_app-pages-browser_src_game_GameCanvas_tsx.js\"]}}"

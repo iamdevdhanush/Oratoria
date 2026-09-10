@@ -50,13 +50,13 @@ export class AuditoriumScene extends Phaser.Scene {
     this.playerGraphics.setDepth(11);
 
     // Floating 'You' badge container
-    this.playerNameplate = this.add.container(player.position.x, player.position.y - 48);
+    this.playerNameplate = this.add.container(player.position.x, player.position.y - 56);
     this.playerNameplate.setDepth(15);
 
     const bgG = this.add.graphics();
-    bgG.fillStyle(0x000000, 0.65);
+    bgG.fillStyle(0x000000, 0.7);
     bgG.fillRoundedRect(-22, -10, 44, 20, 10);
-    bgG.lineStyle(1, 0xffffff, 0.15);
+    bgG.lineStyle(1, 0xffffff, 0.2);
     bgG.strokeRoundedRect(-22, -10, 44, 20, 10);
 
     const dot = this.add.circle(-10, 0, 3, 0x22c55e);
@@ -77,64 +77,63 @@ export class AuditoriumScene extends Phaser.Scene {
   private drawPlayer(position: Vector2) {
     const g = this.playerGraphics;
     g.clear();
+    g.setPosition(position.x, position.y);
 
-    const cx = position.x;
-    const cy = position.y;
-
-    // Legs / Boots
+    // Boots / Legs
     g.fillStyle(0x231c19, 1);
-    g.fillRoundedRect(cx - 7, cy + 10, 5, 12, 2);
-    g.fillRoundedRect(cx + 2, cy + 10, 5, 12, 2);
+    g.fillRoundedRect(-8, 12, 6, 14, 2);
+    g.fillRoundedRect(2, 12, 6, 14, 2);
 
     // Brown Trench Coat / Body
     g.fillStyle(0x563e2e, 1);
-    g.fillRoundedRect(cx - 12, cy - 8, 24, 22, 6);
+    g.fillRoundedRect(-14, -10, 28, 26, 6);
 
     // Coat details & Collar (back angle)
     g.fillStyle(0x3e2c20, 1);
-    g.fillTriangle(cx - 8, cy - 8, cx, cy - 2, cx - 4, cy + 6);
-    g.fillTriangle(cx + 8, cy - 8, cx, cy - 2, cx + 4, cy + 6);
+    g.fillTriangle(-10, -10, 0, -3, -5, 7);
+    g.fillTriangle(10, -10, 0, -3, 5, 7);
     g.lineStyle(1.5, 0x2b1d16, 1);
-    g.strokeRoundedRect(cx - 12, cy - 8, 24, 22, 6);
+    g.strokeRoundedRect(-14, -10, 28, 26, 6);
 
     // Arms
     g.fillStyle(0x4a3426, 1);
-    g.fillRoundedRect(cx - 15, cy - 6, 5, 14, 2.5);
-    g.fillRoundedRect(cx + 10, cy - 6, 5, 14, 2.5);
+    g.fillRoundedRect(-18, -7, 6, 16, 3);
+    g.fillRoundedRect(12, -7, 6, 16, 3);
 
     // Neck / Head base
     g.fillStyle(0x2d1f18, 1);
-    g.fillCircle(cx, cy - 14, 11);
+    g.fillCircle(0, -16, 13);
 
     // Dark Layered Hair (back/isometric view)
     g.fillStyle(0x201815, 1);
-    g.fillCircle(cx, cy - 17, 12);
-    g.fillCircle(cx - 4, cy - 15, 10);
-    g.fillCircle(cx + 4, cy - 15, 10);
+    g.fillCircle(0, -19, 14);
+    g.fillCircle(-5, -17, 12);
+    g.fillCircle(5, -17, 12);
     g.fillStyle(0x352822, 0.6);
-    g.fillCircle(cx, cy - 20, 8);
+    g.fillCircle(0, -22, 9);
 
     if (this.playerNameplate) {
-      this.playerNameplate.setPosition(cx, cy - 48);
+      this.playerNameplate.setPosition(position.x, position.y - 56);
     }
   }
 
   private drawShadow(position: Vector2) {
     const g = this.playerShadow;
     g.clear();
-    g.fillStyle(0x000000, 0.28);
-    g.fillEllipse(position.x, position.y + 22, 32, 10);
+    g.setPosition(position.x, position.y);
+    g.fillStyle(0x000000, 0.32);
+    g.fillEllipse(0, 26, 38, 12);
   }
 
   private setupZones() {
     // Stage Podium Floating Prompt pill [🏛 Press E to Speak]
-    this.promptContainer = this.add.container(1344, 595);
+    this.promptContainer = this.add.container(1344, 635);
     this.promptContainer.setDepth(20);
 
     const promptBg = this.add.graphics();
-    promptBg.fillStyle(0x1a1410, 0.85);
+    promptBg.fillStyle(0x1a1410, 0.9);
     promptBg.fillRoundedRect(-85, -16, 170, 32, 16);
-    promptBg.lineStyle(1.5, 0xc9a84c, 0.7);
+    promptBg.lineStyle(1.5, 0xc9a84c, 0.8);
     promptBg.strokeRoundedRect(-85, -16, 170, 32, 16);
 
     const promptTxt = this.add.text(0, 0, '🏛  Press E to Speak', {
@@ -151,7 +150,7 @@ export class AuditoriumScene extends Phaser.Scene {
     // Subtle gentle float animation on the podium prompt
     this.tweens.add({
       targets: this.promptContainer,
-      y: 590,
+      y: 628,
       duration: 1800,
       yoyo: true,
       repeat: -1,
@@ -172,8 +171,16 @@ export class AuditoriumScene extends Phaser.Scene {
 
   private setupCamera() {
     this.cameras.main.setBounds(0, 0, GAME_CONFIG.worldWidth, GAME_CONFIG.worldHeight);
-    this.cameras.main.setZoom(1);
-    this.cameras.main.centerOn(1344, 820);
+    const optimalZoom = this.calculateOptimalZoom();
+    this.cameras.main.setZoom(optimalZoom);
+    useCameraStore.getState().setZoom(optimalZoom);
+    this.cameras.main.centerOn(GAME_CONFIG.worldWidth / 2, GAME_CONFIG.worldHeight / 2);
+  }
+
+  private calculateOptimalZoom(): number {
+    const h = this.cameras.main.height || (typeof window !== 'undefined' ? window.innerHeight : 1080);
+    const zoom = h / GAME_CONFIG.worldHeight;
+    return Math.max(GAME_CONFIG.minZoom, Math.min(GAME_CONFIG.maxZoom, zoom));
   }
 
   private setupClickToMove() {
@@ -352,14 +359,22 @@ export class AuditoriumScene extends Phaser.Scene {
       this.drawPlayer(newPosition);
       this.drawShadow(newPosition);
       const cam = this.cameras.main;
-      cam.scrollX += (currentPosition.x - cam.width / 2 - cam.scrollX) * 0.05;
-      cam.scrollY += (currentPosition.y - 150 - cam.height / 2 - cam.scrollY) * 0.05;
+      const targetCamX = Phaser.Math.Clamp(currentPosition.x, 800, GAME_CONFIG.worldWidth - 800);
+      const targetCamY = Phaser.Math.Clamp(currentPosition.y - 100, 500, GAME_CONFIG.worldHeight - 500);
+      const midX = cam.midPoint.x;
+      const midY = cam.midPoint.y;
+      cam.centerOn(
+        midX + (targetCamX - midX) * 0.05,
+        midY + (targetCamY - midY) * 0.05
+      );
     }
 
     this.checkZones(currentPosition);
 
     const zoom = useCameraStore.getState().zoom;
-    this.cameras.main.setZoom(zoom);
+    if (Math.abs(this.cameras.main.zoom - zoom) > 0.001) {
+      this.cameras.main.setZoom(zoom);
+    }
   }
 }
 
