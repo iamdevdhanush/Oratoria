@@ -24,17 +24,6 @@ export function GameCanvas({ onSceneReady }: GameCanvasProps) {
       onSceneReady?.();
     });
 
-    const handleWheel = (e: WheelEvent) => {
-      if (e.ctrlKey || e.metaKey) {
-        e.preventDefault();
-        if (e.deltaY < 0) {
-          useCameraStore.getState().zoomIn();
-        } else {
-          useCameraStore.getState().zoomOut();
-        }
-      }
-    };
-
     const handleResize = () => {
       if (gameRef.current) {
         const w = window.innerWidth;
@@ -50,11 +39,9 @@ export function GameCanvas({ onSceneReady }: GameCanvasProps) {
       }
     };
 
-    window.addEventListener('wheel', handleWheel, { passive: false });
     window.addEventListener('resize', handleResize);
 
     return () => {
-      window.removeEventListener('wheel', handleWheel);
       window.removeEventListener('resize', handleResize);
       game.destroy(true);
       gameRef.current = null;

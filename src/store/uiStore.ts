@@ -18,6 +18,10 @@ interface UIStore extends UIState, ControlsState {
   setCameraEnabled: (enabled: boolean) => void;
 }
 
+// Deduplication tracker for notifications
+let lastNotificationMessage = '';
+let lastNotificationTimestamp = 0;
+
 export const useUIStore = create<UIStore>((set) => ({
   rightPanelOpen: true,
   peoplePanelOpen: false,
@@ -34,13 +38,29 @@ export const useUIStore = create<UIStore>((set) => ({
   toggleChat: () => set((state) => ({ chatOpen: !state.chatOpen })),
   setChatOpen: (open) => set({ chatOpen: open }),
   setActiveTab: (tab) => set({ activeTab: tab }),
-  addNotification: (notification) =>
-    set((state) => ({
-      notifications: [
-        ...state.notifications,
-        { ...notification, id: crypto.randomUUID() },
-      ],
-    })),
+  addNotification: (notification) => {
+    const now = Date.now();
+    // Prevent identical messages within 3 seconds
+    if (
+      lastNotificationMessage === notification.message &&
+      now - lastNotificationTimestamp < 3000
+    ) {
+      return;
+    }
+    lastNotificationMessage = notification.message;
+    lastNotificationTimestamp = now;
+
+    // Queue size = 1: replaces any existing toast instead of stacking
+    const newNotification: Notification = {
+      ...notification,
+      duration: notification.duration ?? 2500,
+      id: crypto.randomUUID(),
+    };
+
+    set({
+      notifications: [newNotification],
+    });
+  },
   removeNotification: (id) =>
     set((state) => ({
       notifications: state.notifications.filter((n) => n.id !== id),
